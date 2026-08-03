@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Raksha Bandhan | A Premium Celebration</title>
+    
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Cinzel+Decorative:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- Ambient Sparkles Container -->
+    <div id="sparkleContainer" class="sparkle-container"></div>
+
+    <!-- Music Control (Visible after opening envelope) -->
+    <button id="musicToggle" class="music-toggle" aria-label="Toggle Music">
+        <svg id="musicOnIcon" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6zm-2 16c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+        </svg>
+        <svg id="musicOffIcon" class="hidden" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="currentColor" d="M4.27 3L3 4.27l9 9v.28c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4v-1.73l6 6L21 20.73 4.27 3zM14 7h4V3h-6v5.18l2 2z"/>
+        </svg>
+    </button>
+
+    <!-- SECTION 1: ENVELOPE INTRO SCREEN -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-header">
+            <h1 class="festive-title">Raksha Bandhan</h1>
+            <p class="festive-subtitle">A Sacred Bond of Love & Protection</p>
+        </div>
+        
+        <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope" id="envelope">
+                <div class="envelope-flap top" id="envelopeFlap"></div>
+                <div class="envelope-flap left"></div>
+                <div class="envelope-flap right"></div>
+                <div class="envelope-flap bottom"></div>
+                
+                <!-- Inner Letter Peek -->
+                <div class="letter-peek">
+                    <div class="letter-peek-decor"></div>
+                </div>
+
+                <!-- Wax Seal -->
+                <div class="wax-seal" id="waxSeal">
+                    <div class="seal-inner">
+                        <!-- Elegant Rakhi/Mandala SVG -->
+                        <svg viewBox="0 0 100 100" width="60" height="60">
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="35" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,2"/>
+                            <path d="M 50 15 C 53 30, 47 30, 50 45" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                            <path d="M 50 85 C 47 70, 53 70, 50 55" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                            <path d="M 15 50 C 30 53, 30 47, 45 50" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                            <path d="M 85 50 C 70 47, 70 53, 55 50" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                            <circle cx="50" cy="50" r="10" fill="#f59e0b"/>
+                            <!-- Inner details -->
+                            <circle cx="50" cy="50" r="6" fill="#7f1d1d"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="seal-instructions">Click the Wax Seal to Open</div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: MAIN CARD DASHBOARD (Revealed after opening) -->
+    <div class="card-screen hidden" id="cardScreen">
+        <div class="card-container" id="cardContainer">
+            <!-- Premium Borders -->
+            <div class="card-corner top-left"></div>
+            <div class="card-corner top-right"></div>
+            <div class="card-corner bottom-left"></div>
+            <div class="card-corner bottom-right"></div>
+
+            <!-- Header Names display -->
+            <div class="sibling-badge">
+                <div class="badge-from">From: <span id="badgeFromText">Behna</span></div>
+                <div class="badge-separator">❤️</div>
+                <div class="badge-to">To: <span id="badgeToText">Bhaiya</span></div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="card-tabs">
+                <button class="tab-btn active" data-tab="wish">
+                    <span class="tab-icon">✨</span>
+                    <span class="tab-text">The Wish</span>
+                </button>
+                <button class="tab-btn" data-tab="ritual">
+                    <span class="tab-icon">🪔</span>
+                    <span class="tab-text">Virtual Rakhi</span>
+                </button>
+                <button class="tab-btn" data-tab="memories">
+                    <span class="tab-icon">📸</span>
+                    <span class="tab-text">Memories</span>
+                </button>
+                <button class="tab-btn" data-tab="create">
+                    <span class="tab-icon">✍️</span>
+                    <span class="tab-text">Send Wish</span>
+                </button>
+                <div class="tab-indicator-line" id="tabIndicatorLine"></div>
+            </nav>
+
+            <!-- Tab Contents -->
+            <div class="card-content">
+                
+                <!-- TAB 1: THE WISH -->
+                <div class="tab-pane active" id="paneWish">
+                    <div class="wish-section">
+                        <div class="shloka-container">
+                            <div class="shloka-accent">ॐ</div>
+                            <p class="shloka-sanskrit">येन बद्धो बली राजा दानवेन्द्रो महाबलः।</p>
+                            <p class="shloka-sanskrit">तेन त्वामभिबध्नामि रक्षे मा चल मा चल॥</p>
+                            <div class="shloka-divider"></div>
+                            <p class="shloka-translation">
+                                "I bind you with the same sacred thread that bound the mighty King Bali. 
+                                O thread of protection, remain steady, protect forever."
+                            </p>
+                        </div>
+                        
+                        <div class="personal-letter">
+                            <h2 class="letter-greeting">Dearest <span id="letterTo">Bhaiya</span>,</h2>
+                            <p class="letter-body" id="letterBodyText">
+                                On this auspicious day of Raksha Bandhan, I want to thank you for always being my pillar of strength, my partner in crime, and my protector. No matter how far we are, the sacred thread of Rakhi ties our hearts together forever. Wishing you endless happiness, good health, and success!
+                            </p>
+                            <p class="letter-closing">With all my love,<br><span class="heart-signature">❤️</span> <span id="letterFrom">Behna</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: VIRTUAL CEREMONY -->
+                <div class="tab-pane" id="paneRitual">
+                    <div class="ritual-section">
+                        <div class="ritual-header">
+                            <h2 class="ritual-title">Perform Virtual Rakhi Rituals</h2>
+                            <p class="ritual-subtitle">Follow the steps below to tie the virtual thread of love</p>
+                        </div>
+
+                        <!-- Step tracker -->
+                        <div class="step-tracker">
+                            <div class="step-indicator active" id="indicatorTilak" data-step="tilak">
+                                <div class="step-num">1</div>
+                                <div class="step-label">Apply Tilak</div>
+                            </div>
+                            <div class="step-line"><div class="step-line-fill" id="lineFill1"></div></div>
+                            <div class="step-indicator" id="indicatorRakhi" data-step="rakhi">
+                                <div class="step-num">2</div>
+                                <div class="step-label">Tie Rakhi</div>
+                            </div>
+                            <div class="step-line"><div class="step-line-fill" id="lineFill2"></div></div>
+                            <div class="step-indicator" id="indicatorAarti" data-step="aarti">
+                                <div class="step-num">3</div>
+                                <div class="step-label">Aarti & Sweets</div>
+                            </div>
+                        </div>
+
+                        <!-- Ritual Arena -->
+                        <div class="ritual-arena">
+                            
+                            <!-- Interaction Canvas/Target Container -->
+                            <div class="arena-display" id="arenaDisplay">
+                                <!-- Brother Illustration Container -->
+                                <div class="character-canvas">
+                                    
+                                    <!-- Brother Vector SVG -->
+                                    <svg class="brother-svg" viewBox="0 0 400 300" width="100%" height="100%">
+                                        <defs>
+                                            <!-- Skin gradient -->
+                                            <linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#fed7aa"/>
+                                                <stop offset="100%" stop-color="#fdbb74"/>
+                                            </linearGradient>
+                                            <!-- Hair gradient -->
+                                            <linearGradient id="hairGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                                <stop offset="0%" stop-color="#1e293b"/>
+                                                <stop offset="100%" stop-color="#0f172a"/>
+                                            </linearGradient>
+                                            <!-- Gold gradient -->
+                                            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#fbbf24"/>
+                                                <stop offset="50%" stop-color="#d97706"/>
+                                                <stop offset="100%" stop-color="#b45309"/>
+                                            </linearGradient>
+                                            <!-- Kurta gradient -->
+                                            <linearGradient id="kurtaGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                <stop offset="0%" stop-color="#1e1b4b"/>
+                                                <stop offset="50%" stop-color="#451a03"/>
+                                                <stop offset="100%" stop-color="#1e1b4b"/>
+                                            </linearGradient>
+                                            <!-- Sandalwood paste gradient -->
+                                            <linearGradient id="sandalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#fef08a"/>
+                                                <stop offset="100%" stop-color="#eab308"/>
+                                            </linearGradient>
+                                        </defs>
+
+                                        <!-- Kurta/Shoulders -->
+                                        <path d="M 60 300 C 60 210, 110 190, 200 190 C 290 190, 340 210, 340 300 Z" fill="url(#kurtaGrad)" stroke="url(#goldGrad)" stroke-width="2"/>
+                                        <!-- Kurta collar buttons / details -->
+                                        <path d="M 196 190 L 196 240 L 204 240 L 204 190 Z" fill="url(#goldGrad)"/>
+                                        <circle cx="200" cy="205" r="3" fill="#991b1b"/>
+                                        <circle cx="200" cy="225" r="3" fill="#991b1b"/>
+                                        
+                                        <!-- Neck -->
+                                        <path d="M 175 190 L 175 160 C 175 160, 200 170, 225 160 L 225 190 Z" fill="url(#skinGrad)" opacity="0.95"/>
+                                        
+                                        <!-- Face -->
+                                        <!-- Ears -->
+                                        <circle cx="130" cy="120" r="14" fill="url(#skinGrad)"/>
+                                        <circle cx="270" cy="120" r="14" fill="url(#skinGrad)"/>
+                                        
+                                        <!-- Face shape -->
+                                        <path d="M 140 85 C 140 45, 260 45, 260 85 C 260 145, 240 180, 200 180 C 160 180, 140 145, 140 85 Z" fill="url(#skinGrad)"/>
+                                        
+                                        <!-- Hair -->
+                                        <path d="M 136 85 C 130 75, 135 45, 170 35 C 200 25, 240 35, 264 50 C 275 60, 270 75, 264 85 C 260 55, 140 55, 136 85 Z" fill="url(#hairGrad)"/>
+                                        
+                                        <!-- Eyebrows -->
+                                        <path d="M 160 80 Q 175 73 190 80" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                        <path d="M 210 80 Q 225 73 240 80" stroke="#0f172a" stroke-width="3" fill="none" stroke-linecap="round"/>
+                                        
+                                        <!-- Eyes (closed in blessing) -->
+                                        <path d="M 162 93 Q 175 101 188 93" stroke="#0f172a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                        <path d="M 212 93 Q 225 101 238 93" stroke="#0f172a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                                        
+                                        <!-- Nose -->
+                                        <path d="M 200 95 L 196 122 L 204 122 Z" fill="rgba(0,0,0,0.06)"/>
+                                        
+                                        <!-- Smile -->
+                                        <path d="M 185 140 Q 200 152 215 140" stroke="#991b1b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+
+                                        <!-- Forehead Tilak Target Area (interactive) -->
+                                        <g class="forehead-group">
+                                            <!-- Glowing target marker -->
+                                            <circle cx="200" cy="70" r="14" fill="rgba(249, 115, 22, 0.15)" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="4,2" class="forehead-glow-ring"/>
+                                            <!-- Applied Tilak Group (Hidden by default, shown by JS) -->
+                                            <g id="appliedTilak" class="hidden">
+                                                <!-- Sandalwood paste yellow background -->
+                                                <path d="M 197 59 C 197 59, 200 55, 203 59 L 202 81 C 202 81, 200 84, 198 81 Z" fill="url(#sandalGrad)" opacity="0.9"/>
+                                                <!-- Kumkum red main tikka -->
+                                                <path d="M 199 61 C 199 61, 200 57, 201 61 L 201 79 C 201 79, 200 82, 199 79 Z" fill="#991b1b"/>
+                                                <!-- Rice grains (akshat) -->
+                                                <circle cx="199" cy="69" r="1.5" fill="#fff" opacity="0.9"/>
+                                                <circle cx="201" cy="65" r="1.5" fill="#fff" opacity="0.9"/>
+                                                <circle cx="200" cy="73" r="1.5" fill="#fff" opacity="0.9"/>
+                                            </g>
+                                        </g>
+
+                                        <!-- Arm / Wrist section -->
+                                        <!-- Skin arm path horizontal at bottom -->
+                                        <path d="M 100 265 L 300 265 L 300 295 L 100 295 Z" fill="url(#skinGrad)"/>
+                                        <!-- Gold kada bracelets on edges of wrist area -->
+                                        <rect x="110" y="265" width="12" height="30" rx="3" fill="url(#goldGrad)"/>
+                                        <rect x="278" y="265" width="12" height="30" rx="3" fill="url(#goldGrad)"/>
+                                        
+                                        <!-- Wrist Target Area -->
+                                        <g class="wrist-group">
+                                            <!-- Glowing target rect -->
+                                            <rect x="140" y="265" width="120" height="30" rx="4" fill="rgba(251,191,36,0.1)" stroke="url(#goldGrad)" stroke-width="1.5" stroke-dasharray="6,3" class="wrist-glow-rect"/>
+                                            
+                                            <!-- SVG Rakhi Thread Wrap Animation -->
+                                            <g id="tiedRakhiThreads" class="hidden">
+                                                <!-- Saffron and red threads wrapping wrist -->
+                                                <path d="M 130 275 Q 200 282 270 275" stroke="#ea580c" stroke-width="3.5" fill="none" class="thread-path-1"/>
+                                                <path d="M 130 280 Q 200 287 270 280" stroke="#991b1b" stroke-width="3.5" fill="none" class="thread-path-2"/>
+                                                <path d="M 130 285 Q 200 292 270 285" stroke="#fbbf24" stroke-width="2.5" fill="none" class="thread-path-3"/>
+                                                
+                                                <!-- Hanging thread tassels -->
+                                                <path d="M 130 277 Q 110 292 100 305" stroke="#ea580c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                                <path d="M 130 283 Q 105 298 95 315" stroke="#991b1b" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                                <path d="M 270 277 Q 290 292 300 305" stroke="#ea580c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                                <path d="M 270 283 Q 295 298 305 315" stroke="#991b1b" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                            </g>
+                                        </g>
+                                    </svg>
+
+                                    <!-- Forensic target invisible overlays for mouse triggers -->
+                                    <div class="forehead-hotspot" id="foreheadTarget"></div>
+                                    <div class="wrist-hotspot" id="wristTarget"></div>
+
+                                    <!-- Tied Rakhi Medallion image overlay -->
+                                    <div class="tied-rakhi-wrapper hidden" id="tiedRakhiWrapper">
+                                        <img src="assets/rakhi.png" alt="Tied Rakhi Medallion" class="tied-rakhi-medallion" id="tiedRakhi">
+                                    </div>
+
+                                    <!-- Aarti Glow Overlay -->
+                                    <div class="aarti-glow-overlay" id="aartiGlowOverlay"></div>
+                                    
+                                    <!-- Aarti Highlight Flame Mask overlay -->
+                                    <div class="aarti-highlight" id="aartiHighlight"></div>
+
+                                    <!-- Premium Aarti Thali Cursor Overlay -->
+                                    <div class="aarti-thali-cursor hidden" id="virtualDiyaOverlay">
+                                        <div class="thali-plate">
+                                            <!-- Diya in Center -->
+                                            <div class="thali-diya">
+                                                <div class="thali-diya-wick"></div>
+                                                <div class="thali-diya-flame"></div>
+                                            </div>
+                                            <!-- Flowers -->
+                                            <div class="thali-flower item-1">🌸</div>
+                                            <div class="thali-flower item-2">🌼</div>
+                                            <!-- Sweets (Laddus) -->
+                                            <div class="thali-sweet item-1"></div>
+                                            <div class="thali-sweet item-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Tool Plate -->
+                            <div class="ritual-plate" id="ritualPlate">
+                                <div class="plate-inner">
+                                    <!-- Diya (Flame sparkles) -->
+                                    <div class="plate-item active-tool" id="toolTilak" title="Tilak Bowl">
+                                        <div class="tilak-bowl">
+                                            <div class="kumkum"></div>
+                                            <div class="chawal"></div>
+                                        </div>
+                                        <span class="tool-label">Kumkum</span>
+                                    </div>
+
+                                    <!-- Rakhi Item -->
+                                    <div class="plate-item" id="toolRakhi" title="Sacred Rakhi">
+                                        <img src="assets/rakhi.png" alt="Rakhi" class="plate-rakhi-img">
+                                        <span class="tool-label">Rakhi</span>
+                                    </div>
+
+                                    <!-- Aarti Plate Diya -->
+                                    <div class="plate-item" id="toolAarti" title="Aarti Diya">
+                                        <div class="plate-diya">
+                                            <div class="diya-wick"></div>
+                                            <div class="diya-flame"></div>
+                                        </div>
+                                        <span class="tool-label">Aarti</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Instructions & Feedback -->
+                        <div class="ritual-instructions" id="ritualInstructions">
+                            <span class="instruction-icon">👉</span>
+                            <span id="instructionText">Click the Kumkum Tilak bowl, then tap on Bhaiya's forehead to apply Tilak.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 3: MEMORIES -->
+                <div class="tab-pane" id="paneMemories">
+                    <div class="memories-section">
+                        <div class="memories-header">
+                            <h2 class="memories-title">A Journey Down Memory Lane</h2>
+                            <p class="memories-subtitle">Sweet times we shared, fights we laughed off, and moments we cherish</p>
+                        </div>
+                        
+                        <div class="memories-carousel-container">
+                            <div class="memory-card active">
+                                <div class="memory-img-wrapper">
+                                    <img src="assets/siblings.png" alt="Siblings Bond" class="memory-img">
+                                </div>
+                                <div class="memory-details">
+                                    <span class="memory-tag">Forever Bond</span>
+                                    <h3>Growing Up Together</h3>
+                                    <p>"We laugh, we fight, we make up, we care. Having a sibling like you is a blessing beyond compare. The best memories of my childhood are the ones I shared with you."</p>
+                                </div>
+                            </div>
+                            
+                            <div class="memory-card next">
+                                <div class="memory-img-wrapper decorative-svg-bg">
+                                    <!-- Beautiful golden vector graphic representing sweets and gifts -->
+                                    <svg viewBox="0 0 200 200" width="100%" height="100%" class="memory-placeholder-svg">
+                                        <defs>
+                                            <radialGradient id="goldGrad" cx="50%" cy="50%" r="50%">
+                                                <stop offset="0%" stop-color="#fbbf24"/>
+                                                <stop offset="100%" stop-color="#b45309"/>
+                                            </radialGradient>
+                                        </defs>
+                                        <circle cx="100" cy="100" r="80" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+                                        <path d="M 50 100 Q 100 50 150 100 Q 100 150 50 100" fill="url(#goldGrad)" opacity="0.3"/>
+                                        <circle cx="100" cy="100" r="40" fill="url(#goldGrad)"/>
+                                        <path d="M 80 100 L 120 100 M 100 80 L 100 120" stroke="#fff" stroke-width="3"/>
+                                        <text x="100" y="155" fill="#f59e0b" font-family="'Playfair Display'" font-size="14" text-anchor="middle" font-weight="bold">Sweet Celebrations</text>
+                                    </svg>
+                                </div>
+                                <div class="memory-details">
+                                    <span class="memory-tag">Sweet Childhood</span>
+                                    <h3>Tastiest Celebrations</h3>
+                                    <p>"From fighting over the last piece of Kaju Katli to sharing the sweetest moments of festival mornings. May your life be filled with sweet success and delightful memories!"</p>
+                                </div>
+                            </div>
+
+                            <div class="memory-card prev">
+                                <div class="memory-img-wrapper decorative-svg-bg-2">
+                                    <svg viewBox="0 0 200 200" width="100%" height="100%" class="memory-placeholder-svg">
+                                        <circle cx="100" cy="100" r="80" fill="none" stroke="#ec4899" stroke-width="2"/>
+                                        <path d="M 100 40 C 60 40 60 90 100 130 C 140 90 140 40 100 40 Z" fill="#ec4899" opacity="0.4"/>
+                                        <path d="M 100 50 C 70 50 70 85 100 120 C 130 85 130 50 100 50 Z" fill="#ec4899"/>
+                                        <text x="100" y="160" fill="#ec4899" font-family="'Playfair Display'" font-size="14" text-anchor="middle" font-weight="bold">Unconditional Love</text>
+                                    </svg>
+                                </div>
+                                <div class="memory-details">
+                                    <span class="memory-tag">No Matter What</span>
+                                    <h3>Pillar of Strength</h3>
+                                    <p>"Even when we argue and complain about each other, I always know you have my back. You are my protective shield and my best friend for life. Happy Rakhi!"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Carousel Controls -->
+                        <div class="carousel-dots">
+                            <span class="dot active" data-index="0"></span>
+                            <span class="dot" data-index="1"></span>
+                            <span class="dot" data-index="2"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: CREATE WISH -->
+                <div class="tab-pane" id="paneCreate">
+                    <div class="create-section">
+                        <div class="create-header">
+                            <h2 class="create-title">Create Your Custom Wish Page</h2>
+                            <p class="create-subtitle">Personalize this premium page with custom names & message to share with your siblings!</p>
+                        </div>
+
+                        <form class="create-form" id="createWishForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="inputFrom">Your Name (Sender)</label>
+                                    <input type="text" id="inputFrom" placeholder="e.g. Neha" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inputTo">Sibling's Name (Receiver)</label>
+                                    <input type="text" id="inputTo" placeholder="e.g. Rahul" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="selectMessage">Select Greeting Message</label>
+                                <select id="selectMessage">
+                                    <option value="default">Standard Loving Wish (Partner in Crime, Protective Pillar)</option>
+                                    <option value="sweet">Sweet & Warm (Kaju Katli sharing & childhood memories)</option>
+                                    <option value="protective">Protective Shield (Traditional Sanskrit Shloka focus)</option>
+                                    <option value="funny">Funny & Teasing (Sweet fights, remote-control wars, and love)</option>
+                                    <option value="custom">Write my own custom message...</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group hidden" id="customMessageGroup">
+                                <label for="textCustomMessage">Your Custom Message</label>
+                                <textarea id="textCustomMessage" rows="4" placeholder="Write your heartfelt message here..."></textarea>
+                            </div>
+
+                            <button type="submit" class="generate-btn">Generate Premium Wish Link 🌟</button>
+                        </form>
+
+                        <!-- Share Output (Hidden initially) -->
+                        <div class="share-output hidden" id="shareOutput">
+                            <div class="output-header">Your Premium Page is Ready! 🔗</div>
+                            <div class="output-url-box">
+                                <input type="text" id="outputUrl" readonly>
+                                <button id="btnCopy" class="copy-btn">Copy Link</button>
+                            </div>
+                            <div class="share-buttons">
+                                <a href="#" id="shareWhatsApp" class="share-btn whatsapp" target="_blank">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.858.002-2.634-1.019-5.107-2.877-6.97C16.597 1.96 14.133 1.01 11.5 1.01c-5.437 0-9.863 4.422-9.868 9.86-.001 1.77.476 3.5 1.38 5.02l-.95 3.47 3.585-.944zm11.002-7.458c-.288-.144-1.702-.84-1.965-.936-.264-.096-.456-.144-.648.144-.192.288-.744.936-.912 1.128-.168.192-.336.216-.624.072-.288-.144-1.217-.449-2.318-1.432-.857-.764-1.436-1.708-1.604-1.996-.168-.288-.018-.444.126-.587.13-.13.288-.336.432-.504.144-.168.192-.288.288-.48.096-.192.048-.36-.024-.504-.072-.144-.648-1.56-.888-2.136-.234-.564-.471-.487-.648-.496-.167-.008-.36-.01-.552-.01-.192 0-.504.072-.768.36-.264.288-1.008.984-1.008 2.4s1.032 2.784 1.176 2.976c.144.192 2.03 3.1 4.919 4.349.686.297 1.224.474 1.643.607.69.219 1.319.188 1.817.114.553-.082 1.702-.696 1.942-1.368.24-.672.24-1.248.168-1.368-.072-.12-.264-.192-.552-.336z"/>
+                                    </svg>
+                                    Share on WhatsApp
+                                </a>
+                                <button id="btnNewWish" class="share-btn reset-btn">Create Another Wish</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="index.js"></script>
+</body>
+</html>
