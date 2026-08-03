@@ -43,18 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const memoryCards = document.querySelectorAll('.memory-card');
     const carouselDots = document.querySelectorAll('.carousel-dots .dot');
     
-    // Link Builder Form
-    const createWishForm = document.getElementById('createWishForm');
-    const inputFrom = document.getElementById('inputFrom');
-    const inputTo = document.getElementById('inputTo');
-    const selectMessage = document.getElementById('selectMessage');
-    const customMessageGroup = document.getElementById('customMessageGroup');
-    const textCustomMessage = document.getElementById('textCustomMessage');
-    const shareOutput = document.getElementById('shareOutput');
-    const outputUrl = document.getElementById('outputUrl');
-    const btnCopy = document.getElementById('btnCopy');
-    const shareWhatsApp = document.getElementById('shareWhatsApp');
-    const btnNewWish = document.getElementById('btnNewWish');
+
     
     // Music Controls
     const musicToggle = document.getElementById('musicToggle');
@@ -128,6 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return params;
     }
 
+    let finalLetterMessage = "";
+
     function initCustomGreeting() {
         const params = getQueryParams();
         
@@ -146,12 +137,48 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Message determination
         if (customMsg) {
-            letterBodyText.textContent = customMsg;
+            finalLetterMessage = customMsg;
         } else if (wishPresets[presetKey]) {
-            letterBodyText.textContent = wishPresets[presetKey];
+            finalLetterMessage = wishPresets[presetKey];
         } else {
-            letterBodyText.textContent = wishPresets.default;
+            finalLetterMessage = wishPresets.default;
         }
+        
+        // Clear message for typewriter
+        letterBodyText.textContent = '';
+    }
+
+    function runTypewriterEffect() {
+        const text = finalLetterMessage;
+        letterBodyText.textContent = '';
+        let index = 0;
+        
+        function typeChar() {
+            if (index < text.length) {
+                letterBodyText.textContent += text.charAt(index);
+                index++;
+                
+                // Play subtle typewriter sound (every 3rd character)
+                if (index % 3 === 0) {
+                    playAudioTick();
+                }
+                
+                setTimeout(typeChar, 35);
+            } else {
+                // Fade in next step button
+                const actionContainer = document.getElementById('wishActionContainer');
+                if (actionContainer) {
+                    actionContainer.classList.remove('hidden');
+                    actionContainer.style.opacity = '0';
+                    actionContainer.style.transition = 'opacity 0.8s ease';
+                    setTimeout(() => {
+                        actionContainer.style.opacity = '1';
+                    }, 50);
+                }
+            }
+        }
+        
+        typeChar();
     }
     
     initCustomGreeting();
@@ -186,8 +213,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Show music toggle buttons
                     musicToggle.classList.remove('hidden');
                     startAmbientMusic();
-                    // Initialize sliding indicator underline position
-                    setTimeout(updateTabIndicator, 200);
+                    
+                    // Show Back button
+                    const btnCardBack = document.getElementById('btnCardBack');
+                    if (btnCardBack) {
+                        btnCardBack.classList.remove('hidden');
+                    }
+                    
+                    // Initialize sliding indicator underline position and run typewriter
+                    setTimeout(() => {
+                        updateTabIndicator();
+                        runTypewriterEffect();
+                    }, 200);
                 }, 1000);
             }, 1200);
         }, 600);
@@ -203,34 +240,144 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    function switchTab(targetTab) {
+        const btn = document.querySelector(`.tab-btn[data-tab="${targetTab}"]`);
+        if (!btn) return;
+        
+        // Remove locked and disabled states
+        btn.classList.remove('locked');
+        btn.removeAttribute('disabled');
+        
+        // Set button state
+        tabButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateTabIndicator();
+        
+        // Display matching pane
+        tabPanes.forEach(pane => {
+            pane.classList.remove('active');
+            if (pane.id === `pane${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
+                pane.classList.add('active');
+            }
+        });
+        
+        // Clean up custom states when leaving Ritual tab
+        if (targetTab !== 'ritual') {
+            stopAartiTracking();
+        } else {
+            updateRitualLayout();
+        }
+        playAudioTick();
+    }
+    
     // Listen to resize to keep indicator aligned
     window.addEventListener('resize', updateTabIndicator);
 
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
+            // Ignore locked or disabled tabs
+            if (btn.hasAttribute('disabled') || btn.classList.contains('locked')) return;
             const targetTab = btn.getAttribute('data-tab');
-            
-            // Set button state
-            tabButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            updateTabIndicator(); // Slide indicator underline to new tab!
-            
-            // Display matching pane
-            tabPanes.forEach(pane => {
-                pane.classList.remove('active');
-                if (pane.id === `pane${targetTab.charAt(0).toUpperCase() + targetTab.slice(1)}`) {
-                    pane.classList.add('active');
-                }
-            });
-            
-            // Clean up custom states when leaving Ritual tab
-            if (targetTab !== 'ritual') {
-                stopAartiTracking();
-            } else {
-                updateRitualLayout();
-            }
+            switchTab(targetTab);
         });
     });
+
+    // Add Next Buttons Event Listeners
+    const btnGoToRitual = document.getElementById('btnGoToRitual');
+    const btnGoToMemories = document.getElementById('btnGoToMemories');
+    
+    if (btnGoToRitual) {
+        btnGoToRitual.addEventListener('click', () => {
+            // Unlock step 2 tab button
+            const stepRitual = document.getElementById('stepRitual');
+            if (stepRitual) {
+                stepRitual.classList.remove('locked');
+                stepRitual.removeAttribute('disabled');
+            }
+            // Mark step 1 tab button as completed
+            const stepWish = document.getElementById('stepWish');
+            if (stepWish) {
+                stepWish.classList.add('completed');
+            }
+            switchTab('ritual');
+        });
+    }
+    
+    if (btnGoToMemories) {
+        btnGoToMemories.addEventListener('click', () => {
+            // Unlock step 3 tab button
+            const stepMemories = document.getElementById('stepMemories');
+            if (stepMemories) {
+                stepMemories.classList.remove('locked');
+                stepMemories.removeAttribute('disabled');
+            }
+            // Mark step 2 tab button as completed
+            const stepRitual = document.getElementById('stepRitual');
+            if (stepRitual) {
+                stepRitual.classList.add('completed');
+            }
+            switchTab('memories');
+        });
+    }
+
+    // Back Button Event Listener
+    const btnCardBack = document.getElementById('btnCardBack');
+    if (btnCardBack) {
+        btnCardBack.addEventListener('click', () => {
+            const activeTabBtn = document.querySelector('.tab-btn.active');
+            if (!activeTabBtn) return;
+            
+            const currentTab = activeTabBtn.getAttribute('data-tab');
+            playAudioTick();
+            
+            if (currentTab === 'wish') {
+                // Go back to closed envelope screen
+                btnCardBack.classList.add('hidden');
+                cardScreen.classList.add('hidden');
+                introScreen.classList.remove('hidden', 'fade-out');
+                
+                // Reset wax seal and envelope states
+                waxSeal.classList.remove('broken');
+                envelopeWrapper.classList.remove('open');
+                
+                // Reset letter typewriter state and lock stepper tabs
+                letterBodyText.textContent = '';
+                const wishActionContainer = document.getElementById('wishActionContainer');
+                if (wishActionContainer) {
+                    wishActionContainer.classList.add('hidden');
+                }
+                
+                // Relock stepper tabs
+                const stepWish = document.getElementById('stepWish');
+                const stepRitual = document.getElementById('stepRitual');
+                const stepMemories = document.getElementById('stepMemories');
+                
+                if (stepWish) {
+                    stepWish.classList.remove('completed');
+                    stepWish.classList.add('active');
+                }
+                if (stepRitual) {
+                    stepRitual.classList.add('locked');
+                    stepRitual.setAttribute('disabled', 'true');
+                    stepRitual.classList.remove('completed', 'active');
+                }
+                if (stepMemories) {
+                    stepMemories.classList.add('locked');
+                    stepMemories.setAttribute('disabled', 'true');
+                    stepMemories.classList.remove('completed', 'active');
+                }
+                
+                // Stop music
+                stopAmbientMusic();
+            } else if (currentTab === 'ritual') {
+                // Switch back to Wish step
+                switchTab('wish');
+            } else if (currentTab === 'memories') {
+                // Switch back to Ritual step
+                switchTab('ritual');
+            }
+        });
+    }
 
     // 5. MEMORY CAROUSEL CONTROL
     function updateCarousel() {
@@ -269,6 +416,67 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCarousel();
         }
     }, 7000);
+
+    // Swipe support for Memories Carousel (working from both sides, infinite loop)
+    const carouselContainer = document.querySelector('.memories-carousel-container');
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    if (carouselContainer) {
+        // Touch events for mobile
+        carouselContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            // Clear auto rotate timer when user interacts
+            if (carouselTimer) {
+                clearInterval(carouselTimer);
+                carouselTimer = null;
+            }
+        }, { passive: true });
+        
+        carouselContainer.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        // Mouse events for desktop dragging
+        let isMouseDown = false;
+        carouselContainer.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            touchStartX = e.screenX;
+            if (carouselTimer) {
+                clearInterval(carouselTimer);
+                carouselTimer = null;
+            }
+        });
+        
+        carouselContainer.addEventListener('mouseup', (e) => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            touchEndX = e.screenX;
+            handleSwipe();
+        });
+        
+        carouselContainer.addEventListener('mouseleave', () => {
+            isMouseDown = false;
+        });
+    }
+    
+    function handleSwipe() {
+        const threshold = 40; // minimum drag distance
+        const diffX = touchEndX - touchStartX;
+        
+        if (Math.abs(diffX) > threshold) {
+            if (diffX < 0) {
+                // Swiped Left -> Next Card (never-ending loop)
+                activeMemoryIndex = (activeMemoryIndex + 1) % memoryCards.length;
+            } else {
+                // Swiped Right -> Prev Card (never-ending loop)
+                activeMemoryIndex = (activeMemoryIndex - 1 + memoryCards.length) % memoryCards.length;
+            }
+            updateCarousel();
+            playAudioTick();
+        }
+    }
 
     // 6. VIRTUAL RITUAL LOGIC
     
@@ -348,6 +556,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentRitualStep === 'completed') {
             arenaDisplay.className = 'arena-display';
             updateRitualInstructions();
+            const actionContainer = document.getElementById('ritualActionContainer');
+            if (actionContainer) {
+                actionContainer.classList.remove('hidden');
+                actionContainer.style.opacity = '0';
+                actionContainer.style.transition = 'opacity 0.8s ease';
+                setTimeout(() => {
+                    actionContainer.style.opacity = '1';
+                }, 50);
+            }
         }
     }
 
@@ -545,68 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 8. SHARE LINK GENERATION FORM
-    selectMessage.addEventListener('change', () => {
-        if (selectMessage.value === 'custom') {
-            customMessageGroup.classList.remove('hidden');
-        } else {
-            customMessageGroup.classList.add('hidden');
-        }
-    });
 
-    createWishForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const fromVal = inputFrom.value.trim();
-        const toVal = inputTo.value.trim();
-        const presetVal = selectMessage.value;
-        let msgVal = '';
-        
-        if (presetVal === 'custom') {
-            msgVal = textCustomMessage.value.trim();
-        }
-        
-        // Base URI
-        const baseUrl = window.location.href.split('?')[0];
-        let shareUrl = `${baseUrl}?to=${encodeURIComponent(toVal)}&from=${encodeURIComponent(fromVal)}`;
-        
-        if (presetVal === 'custom') {
-            shareUrl += `&msg=${encodeURIComponent(msgVal)}`;
-        } else {
-            shareUrl += `&preset=${encodeURIComponent(presetVal)}`;
-        }
-        
-        // Display generated url
-        outputUrl.value = shareUrl;
-        shareOutput.classList.remove('hidden');
-        
-        // WhatsApp API text setup
-        const whatsappText = `✨ Open this beautiful premium Raksha Bandhan wishing card from ${fromVal}! ❤️ Apply virtual Tilak, tie a Rakhi, and perform Aarti! Click here: ${shareUrl}`;
-        shareWhatsApp.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}`;
-        
-        playHighChime();
-    });
-
-    btnCopy.addEventListener('click', () => {
-        outputUrl.select();
-        outputUrl.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(outputUrl.value).then(() => {
-            btnCopy.textContent = 'Copied!';
-            playHighChime();
-            setTimeout(() => {
-                btnCopy.textContent = 'Copy Link';
-            }, 2500);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-        });
-    });
-
-    btnNewWish.addEventListener('click', () => {
-        createWishForm.reset();
-        customMessageGroup.classList.add('hidden');
-        shareOutput.classList.add('hidden');
-        playAudioTick();
-    });
 
 
     // 9. WEB AUDIO API SYNTHESIZER

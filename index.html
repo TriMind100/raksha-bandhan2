@@ -18,6 +18,9 @@
     <!-- Ambient Sparkles Container -->
     <div id="sparkleContainer" class="sparkle-container"></div>
 
+    <!-- Back Button (Top-Left of Page) -->
+    <button class="card-back-btn hidden" id="btnCardBack">← Back</button>
+
     <!-- Music Control (Visible after opening envelope) -->
     <button id="musicToggle" class="music-toggle" aria-label="Toggle Music">
         <svg id="musicOnIcon" viewBox="0 0 24 24" width="24" height="24">
@@ -85,23 +88,16 @@
                 <div class="badge-to">To: <span id="badgeToText">Bhaiya</span></div>
             </div>
 
-            <!-- Navigation Tabs -->
-            <nav class="card-tabs">
-                <button class="tab-btn active" data-tab="wish">
-                    <span class="tab-icon">✨</span>
+            <!-- Sibling Progress Stepper (Hidden in CSS, acts as script state tracking) -->
+            <nav class="card-tabs card-stepper">
+                <button class="tab-btn active" data-tab="wish" id="stepWish">
                     <span class="tab-text">The Wish</span>
                 </button>
-                <button class="tab-btn" data-tab="ritual">
-                    <span class="tab-icon">🪔</span>
+                <button class="tab-btn locked" data-tab="ritual" id="stepRitual" disabled>
                     <span class="tab-text">Virtual Rakhi</span>
                 </button>
-                <button class="tab-btn" data-tab="memories">
-                    <span class="tab-icon">📸</span>
+                <button class="tab-btn locked" data-tab="memories" id="stepMemories" disabled>
                     <span class="tab-text">Memories</span>
-                </button>
-                <button class="tab-btn" data-tab="create">
-                    <span class="tab-icon">✍️</span>
-                    <span class="tab-text">Send Wish</span>
                 </button>
                 <div class="tab-indicator-line" id="tabIndicatorLine"></div>
             </nav>
@@ -112,17 +108,7 @@
                 <!-- TAB 1: THE WISH -->
                 <div class="tab-pane active" id="paneWish">
                     <div class="wish-section">
-                        <div class="shloka-container">
-                            <div class="shloka-accent">ॐ</div>
-                            <p class="shloka-sanskrit">येन बद्धो बली राजा दानवेन्द्रो महाबलः।</p>
-                            <p class="shloka-sanskrit">तेन त्वामभिबध्नामि रक्षे मा चल मा चल॥</p>
-                            <div class="shloka-divider"></div>
-                            <p class="shloka-translation">
-                                "I bind you with the same sacred thread that bound the mighty King Bali. 
-                                O thread of protection, remain steady, protect forever."
-                            </p>
-                        </div>
-                        
+
                         <div class="personal-letter">
                             <h2 class="letter-greeting">Dearest <span id="letterTo">Bhaiya</span>,</h2>
                             <p class="letter-body" id="letterBodyText">
@@ -130,6 +116,9 @@
                             </p>
                             <p class="letter-closing">With all my love,<br><span class="heart-signature">❤️</span> <span id="letterFrom">Behna</span></p>
                         </div>
+                    </div>
+                    <div class="wish-action-container hidden" id="wishActionContainer">
+                        <button class="next-step-btn" id="btnGoToRitual">Begin Virtual Ritual 🪔</button>
                     </div>
                 </div>
 
@@ -348,6 +337,9 @@
                             <span class="instruction-icon">👉</span>
                             <span id="instructionText">Click the Kumkum Tilak bowl, then tap on Bhaiya's forehead to apply Tilak.</span>
                         </div>
+                        <div class="ritual-action-container hidden" id="ritualActionContainer">
+                            <button class="next-step-btn" id="btnGoToMemories">Cherish Our Memories 📸</button>
+                        </div>
                     </div>
                 </div>
 
@@ -411,71 +403,17 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- Swipe Hint Instruction -->
+                        <div class="swipe-instruction">
+                            <span class="swipe-arrow">👈</span> Swipe to browse memories <span class="swipe-arrow">👉</span>
+                        </div>
 
                         <!-- Carousel Controls -->
                         <div class="carousel-dots">
                             <span class="dot active" data-index="0"></span>
                             <span class="dot" data-index="1"></span>
                             <span class="dot" data-index="2"></span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 4: CREATE WISH -->
-                <div class="tab-pane" id="paneCreate">
-                    <div class="create-section">
-                        <div class="create-header">
-                            <h2 class="create-title">Create Your Custom Wish Page</h2>
-                            <p class="create-subtitle">Personalize this premium page with custom names & message to share with your siblings!</p>
-                        </div>
-
-                        <form class="create-form" id="createWishForm">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="inputFrom">Your Name (Sender)</label>
-                                    <input type="text" id="inputFrom" placeholder="e.g. Neha" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="inputTo">Sibling's Name (Receiver)</label>
-                                    <input type="text" id="inputTo" placeholder="e.g. Rahul" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="selectMessage">Select Greeting Message</label>
-                                <select id="selectMessage">
-                                    <option value="default">Standard Loving Wish (Partner in Crime, Protective Pillar)</option>
-                                    <option value="sweet">Sweet & Warm (Kaju Katli sharing & childhood memories)</option>
-                                    <option value="protective">Protective Shield (Traditional Sanskrit Shloka focus)</option>
-                                    <option value="funny">Funny & Teasing (Sweet fights, remote-control wars, and love)</option>
-                                    <option value="custom">Write my own custom message...</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group hidden" id="customMessageGroup">
-                                <label for="textCustomMessage">Your Custom Message</label>
-                                <textarea id="textCustomMessage" rows="4" placeholder="Write your heartfelt message here..."></textarea>
-                            </div>
-
-                            <button type="submit" class="generate-btn">Generate Premium Wish Link 🌟</button>
-                        </form>
-
-                        <!-- Share Output (Hidden initially) -->
-                        <div class="share-output hidden" id="shareOutput">
-                            <div class="output-header">Your Premium Page is Ready! 🔗</div>
-                            <div class="output-url-box">
-                                <input type="text" id="outputUrl" readonly>
-                                <button id="btnCopy" class="copy-btn">Copy Link</button>
-                            </div>
-                            <div class="share-buttons">
-                                <a href="#" id="shareWhatsApp" class="share-btn whatsapp" target="_blank">
-                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.858.002-2.634-1.019-5.107-2.877-6.97C16.597 1.96 14.133 1.01 11.5 1.01c-5.437 0-9.863 4.422-9.868 9.86-.001 1.77.476 3.5 1.38 5.02l-.95 3.47 3.585-.944zm11.002-7.458c-.288-.144-1.702-.84-1.965-.936-.264-.096-.456-.144-.648.144-.192.288-.744.936-.912 1.128-.168.192-.336.216-.624.072-.288-.144-1.217-.449-2.318-1.432-.857-.764-1.436-1.708-1.604-1.996-.168-.288-.018-.444.126-.587.13-.13.288-.336.432-.504.144-.168.192-.288.288-.48.096-.192.048-.36-.024-.504-.072-.144-.648-1.56-.888-2.136-.234-.564-.471-.487-.648-.496-.167-.008-.36-.01-.552-.01-.192 0-.504.072-.768.36-.264.288-1.008.984-1.008 2.4s1.032 2.784 1.176 2.976c.144.192 2.03 3.1 4.919 4.349.686.297 1.224.474 1.643.607.69.219 1.319.188 1.817.114.553-.082 1.702-.696 1.942-1.368.24-.672.24-1.248.168-1.368-.072-.12-.264-.192-.552-.336z"/>
-                                    </svg>
-                                    Share on WhatsApp
-                                </a>
-                                <button id="btnNewWish" class="share-btn reset-btn">Create Another Wish</button>
-                            </div>
                         </div>
                     </div>
                 </div>
