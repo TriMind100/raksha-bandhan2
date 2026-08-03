@@ -1541,3 +1541,47 @@ body {
         transform: scale(0.8) translateX(-60px) rotate(-3deg);
     }
 }
+
+/* Brand Tag Watermark */
+.brand-tag {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--accent-gold);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    z-index: 1000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.8;
+}
+
+.brand-tag:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-gold);
+    color: #fffbeb;
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.35);
+    opacity: 1;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+    .brand-tag {
+        bottom: 15px;
+        left: 15px;
+        padding: 6px 12px;
+        font-size: 0.7rem;
+    }
+}
+
