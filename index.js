@@ -57,6 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioCtx = null;
     let synthInterval = null;
     let isMusicPlaying = false;
+    let droneOsc1 = null;
+    let droneOsc2 = null;
+    let droneGain = null;
+    let melodyStep = 0;
     
     // Ritual state
     let activeTool = 'tilak'; // 'tilak', 'rakhi', 'aarti'
@@ -157,12 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (index < text.length) {
                 letterBodyText.textContent += text.charAt(index);
                 index++;
-                
-                // Play subtle typewriter sound (every 3rd character)
-                if (index % 3 === 0) {
-                    playAudioTick();
-                }
-                
                 setTimeout(typeChar, 35);
             } else {
                 // Fade in next step button
@@ -210,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         setTimeout(createSparkle, i * 100);
                     }
                     
-                    // Show music toggle buttons
+                    // Show music button and start background song
                     musicToggle.classList.remove('hidden');
                     startAmbientMusic();
                     
@@ -367,8 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     stepMemories.classList.remove('completed', 'active');
                 }
                 
-                // Stop music
-                stopAmbientMusic();
+                // stopAmbientMusic(); // disabled — add your own audio file
             } else if (currentTab === 'ritual') {
                 // Switch back to Wish step
                 switchTab('wish');
@@ -762,11 +759,42 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
-
-
     // 9. WEB AUDIO API SYNTHESIZER
     
+    // // Frequencies mapping for Bansuri Flute Synth (Phoolon Ka Taaron Ka tune)
+    // const freqMap = {
+    //     'C3': 130.81,
+    //     'G3': 196.00,
+    //     'B3': 246.94,
+    //     'C4': 261.63,
+    //     'D4': 293.66,
+    //     'E4': 329.63,
+    //     'F4': 349.23,
+    //     'G4': 392.00,
+    //     'A4': 440.00,
+    //     'B4': 493.88,
+    //     'C5': 523.25,
+    //     'D5': 587.33,
+    //     'E5': 659.25,
+    //     '-': 0
+    // };
+    
+    // Emotional bansuri flute medley (Phoolon Ka Taaron Ka + Bhaiya Mere Rakhi Ke Bandhan)
+    // const bansuriSong = [
+    //     // Phoolon ka taaron ka sabka kehna hai
+    //     'C4', 'E4', 'G4', 'G4', 'A4', 'G4', '-', '-',
+    //     'F4', 'E4', 'D4', 'E4', 'C4', '-', '-', '-',
+    //     // Ek hazaron mein meri behna hai
+    //     'C4', 'D4', 'E4', 'F4', 'E4', 'D4', '-', '-',
+    //     'D4', 'E4', 'C4', 'B3', 'C4', '-', '-', '-',
+    //     // Bhaiya mere rakhi ke bandhan ko nibhana
+    //     'G4', 'A4', 'G4', 'E4', 'G4', 'A4', 'C5', '-',
+    //     'A4', 'G4', 'E4', 'D4', 'E4', 'G4', '-', '-',
+    //     // Bhaiya mere...
+    //     'G4', 'A4', 'G4', 'E4', 'D4', 'E4', 'D4', 'C4',
+    //     '-', '-', '-', '-', '-', '-', '-', '-'
+    // ];
+
     function initAudio() {
         if (audioCtx) return;
         
@@ -775,61 +803,95 @@ document.addEventListener('DOMContentLoaded', () => {
         audioCtx = new AudioContextClass();
     }
     
-    // Play sweet pentatonic classical chimes
-    function playAmbientChime() {
-        if (!audioCtx || audioCtx.state === 'suspended') return;
-        
-        // Pentatonic Scale representing beautiful meditative bells (Raga Bhupali vibes: C, D, E, G, A)
-        const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
-        // Select random note
-        const freq = notes[Math.floor(Math.random() * notes.length)];
+    function playFluteNote(noteName) {
+        if (!audioCtx || audioCtx.state === 'suspended' || noteName === '-') return;
+        const freq = freqMap[noteName];
+        if (!freq) return;
         
         const now = audioCtx.currentTime;
-        
-        // Primary oscillator (Sine)
         const osc = audioCtx.createOscillator();
+        const oscTri = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        // Soft breath vibrato LFO
+        const vibratoLfo = audioCtx.createOscillator();
+        const vibratoGain = audioCtx.createGain();
+        vibratoLfo.frequency.setValueAtTime(5.5, now);
+        vibratoGain.gain.setValueAtTime(3.5, now);
+        
+        vibratoLfo.connect(vibratoGain);
+        vibratoGain.connect(osc.frequency);
+        vibratoGain.connect(oscTri.frequency);
+        
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, now);
         
-        // Sub-oscillator (Triangle) for rich wood-like chime warmth
-        const oscSub = audioCtx.createOscillator();
-        oscSub.type = 'triangle';
-        oscSub.frequency.setValueAtTime(freq / 2, now); // Octave down
+        oscTri.type = 'triangle';
+        oscTri.frequency.setValueAtTime(freq, now);
         
-        // Chime metallic high ring (overtone sine)
-        const oscRing = audioCtx.createOscillator();
-        oscRing.type = 'sine';
-        oscRing.frequency.setValueAtTime(freq * 3.01, now); // Metallic non-harmonic overtone
+        const mixGain = audioCtx.createGain();
+        mixGain.gain.setValueAtTime(0.04, now);
         
-        // Envelope/Gain Node
-        const gainNode = audioCtx.createGain();
         gainNode.gain.setValueAtTime(0, now);
-        gainNode.gain.linearRampToValueAtTime(0.12, now + 0.05); // quick attack
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 3.0); // long decay
+        gainNode.gain.linearRampToValueAtTime(0.06, now + 0.12);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.9);
         
-        // Filter for warmth
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.Q.value = 1;
-        filter.frequency.setValueAtTime(1200, now);
-        filter.frequency.exponentialRampToValueAtTime(300, now + 2.5);
-        
-        // Connections
-        osc.connect(filter);
-        oscSub.connect(filter);
-        oscRing.connect(filter);
-        
-        filter.connect(gainNode);
+        osc.connect(mixGain);
+        oscTri.connect(mixGain);
+        mixGain.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         
-        // Play
+        vibratoLfo.start(now);
         osc.start(now);
-        oscSub.start(now);
-        oscRing.start(now);
+        oscTri.start(now);
         
-        osc.stop(now + 3.2);
-        oscSub.stop(now + 3.2);
-        oscRing.stop(now + 3.2);
+        vibratoLfo.stop(now + 1.0);
+        osc.stop(now + 1.0);
+        oscTri.stop(now + 1.0);
+    }
+
+    function startTanpuraDrone() {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        
+        droneOsc1 = audioCtx.createOscillator();
+        droneOsc2 = audioCtx.createOscillator();
+        droneGain = audioCtx.createGain();
+        
+        droneOsc1.type = 'sine';
+        droneOsc1.frequency.setValueAtTime(freqMap['C3'], now);
+        
+        droneOsc2.type = 'triangle';
+        droneOsc2.frequency.setValueAtTime(freqMap['G3'], now);
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(300, now);
+        
+        droneGain.gain.setValueAtTime(0, now);
+        droneGain.gain.linearRampToValueAtTime(0.025, now + 1.5);
+        
+        droneOsc1.connect(filter);
+        droneOsc2.connect(filter);
+        filter.connect(droneGain);
+        droneGain.connect(audioCtx.destination);
+        
+        droneOsc1.start(now);
+        droneOsc2.start(now);
+    }
+    
+    function stopTanpuraDrone() {
+        const now = audioCtx ? audioCtx.currentTime : 0;
+        if (droneGain && audioCtx) {
+            try {
+                droneGain.gain.cancelScheduledValues(now);
+                droneGain.gain.linearRampToValueAtTime(0, now + 0.5);
+                setTimeout(() => {
+                    if (droneOsc1) { droneOsc1.stop(); droneOsc1 = null; }
+                    if (droneOsc2) { droneOsc2.stop(); droneOsc2 = null; }
+                }, 600);
+            } catch(e) {}
+        }
     }
     
     function playAudioTick() {
@@ -900,49 +962,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ============================================================
+    //  BACKGROUND MUSIC — plays assets/song.mp3 on loop
+    // ============================================================
+    const bgAudio = new Audio('assets/song.mp3');
+    bgAudio.loop = true;
+    bgAudio.volume = 0.25;
+
     function startAmbientMusic() {
-        if (!audioCtx) return;
-        
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        
+        bgAudio.play().catch(() => {}); // autoplay policy safe
         isMusicPlaying = true;
-        musicToggle.classList.add('playing');
-        musicOnIcon.classList.add('hidden');
-        musicOffIcon.classList.remove('hidden');
-        
-        // Play first chime immediately
-        playAmbientChime();
-        
-        // Loop ambient notes periodically
-        synthInterval = setInterval(() => {
-            if (isMusicPlaying) {
-                // Occasional chime, randomize timing slightly
-                if (Math.random() > 0.3) {
-                    playAmbientChime();
-                }
-            }
-        }, 1800);
+        musicOnIcon.classList.remove('hidden');
+        musicOffIcon.classList.add('hidden');
     }
 
     function stopAmbientMusic() {
+        bgAudio.pause();
         isMusicPlaying = false;
-        musicToggle.classList.remove('playing');
-        musicOnIcon.classList.remove('hidden');
-        musicOffIcon.classList.add('hidden');
-        
-        if (synthInterval) {
-            clearInterval(synthInterval);
-            synthInterval = null;
-        }
+        musicOnIcon.classList.add('hidden');
+        musicOffIcon.classList.remove('hidden');
     }
 
     musicToggle.addEventListener('click', () => {
         if (isMusicPlaying) {
             stopAmbientMusic();
         } else {
-            initAudio();
             startAmbientMusic();
         }
     });

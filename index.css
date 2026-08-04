@@ -1733,7 +1733,7 @@ body {
 .letter-body {
     position: absolute;
     top: 65px;
-    bottom: 85px;
+    bottom: 110px;
     left: 0;
     right: 0;
     margin: 0;
@@ -1757,17 +1757,28 @@ body {
 
 .letter-closing {
     position: absolute;
-    bottom: 10px;
+    bottom: 60px;
     left: 0;
     right: 0;
     margin: 0;
     font-size: 1.1rem;
 }
 
+.wish-action-container {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    z-index: 10;
+}
+
 .next-step-btn {
     padding: 10px 24px;
     font-size: 0.95rem;
-    margin: 12px auto 0 auto;
+    margin: 0;
     border-radius: 20px;
     background: linear-gradient(135deg, var(--accent-saffron) 0%, var(--accent-gold) 100%);
     border: 1px solid var(--accent-gold);
@@ -2044,7 +2055,7 @@ body {
     .letter-body {
         position: absolute;
         top: 35px;
-        bottom: 55px;
+        bottom: 95px;
         left: 0;
         right: 0;
         font-size: 0.85rem;
@@ -2054,17 +2065,27 @@ body {
     
     .letter-closing {
         position: absolute;
-        bottom: 5px;
+        bottom: 50px;
         left: 0;
         right: 0;
         font-size: 0.9rem;
         margin: 0;
     }
     
+    .wish-action-container {
+        position: absolute;
+        bottom: 5px;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    
     .next-step-btn {
-        padding: 8px 18px;
-        font-size: 0.8rem;
-        margin: 8px auto 0 auto;
+        padding: 6px 16px;
+        font-size: 0.75rem;
+        margin: 0;
     }
     
     .arena-display {
