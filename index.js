@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.crimsonMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.6 });
             this.brightGoldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 });
 
-            this.rakhiGroup.position.set(0, -0.65, 0.1);
+            this.rakhiGroup.position.set(0, -0.75, 0.15);
             this.rakhiGroup.visible = false; // Hidden until Kumkum is applied
             this.scene.add(this.rakhiGroup);
 
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showRakhi() {
             if (this.rakhiGroup) {
                 this.rakhiGroup.visible = true;
-                this.rakhiGroup.position.set(0, -0.65, 0.1);
+                this.rakhiGroup.position.set(0, -0.75, 0.15);
             }
         }
 
@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (typeof gsap === 'undefined') {
                 this.updateThreads(1.0);
-                this.rakhiGroup.position.set(0, -1.16, 0.1);
+                this.rakhiGroup.position.set(0, -0.75, 0.15);
                 this.isTied = true;
                 this.isAnimating = false;
                 if (onComplete) onComplete();
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             tl.to(this.rakhiGroup.position, {
-                y: -1.16,
+                y: -0.75,
                 z: 0.15,
                 duration: 0.6,
                 ease: "power2.out"
@@ -1070,7 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { passive: false });
     }
 
-    // Rakhi Tie Interaction (Supports Click, Pointer, & Touch)
+    // Rakhi Tie Interaction (Triggers Pure 3D Animated Rakhi)
     let lastRakhiTime = 0;
     function handleRakhiTrigger(e) {
         const now = Date.now();
@@ -1078,14 +1078,19 @@ document.addEventListener('DOMContentLoaded', () => {
         lastRakhiTime = now;
 
         if (currentRitualStep === 'rakhi' && activeTool === 'rakhi') {
-            if (ritual3D && !ritual3D.isTied && !ritual3D.isAnimating) {
-                // Ensure photo image wrapper is hidden so pure 3D animated Rakhi renders cleanly
-                const tiedRakhiWrapper = document.getElementById('tiedRakhiWrapper');
-                if (tiedRakhiWrapper) {
-                    tiedRakhiWrapper.classList.add('hidden');
-                    tiedRakhiWrapper.classList.remove('show');
-                }
+            // Unhide SVG thread paths & activate tied state
+            const tiedRakhiThreads = document.getElementById('tiedRakhiThreads');
+            if (tiedRakhiThreads) tiedRakhiThreads.classList.remove('hidden');
+            arenaDisplay.classList.add('wrist-active-tied');
 
+            // Hide any photo wrapper permanently
+            const tiedRakhiWrapper = document.getElementById('tiedRakhiWrapper');
+            if (tiedRakhiWrapper) {
+                tiedRakhiWrapper.classList.add('hidden');
+                tiedRakhiWrapper.classList.remove('show');
+            }
+
+            if (ritual3D && !ritual3D.isTied && !ritual3D.isAnimating) {
                 ritual3D.animateTieRakhi(() => {
                     if (orbitHint3D) orbitHint3D.classList.remove('hidden');
                     triggerConfetti(35);
@@ -1105,14 +1110,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateRitualLayout();
                 });
             } else if (!ritual3D || ritual3D.isTied) {
-                const tiedRakhiThreads = document.getElementById('tiedRakhiThreads');
-                const tiedRakhiWrapper = document.getElementById('tiedRakhiWrapper');
-                if (tiedRakhiThreads) tiedRakhiThreads.classList.remove('hidden');
-                arenaDisplay.classList.add('wrist-active-tied');
-                if (tiedRakhiWrapper) {
-                    tiedRakhiWrapper.classList.remove('hidden');
-                    tiedRakhiWrapper.classList.add('show');
-                }
                 triggerConfetti(25);
                 playRitualSuccessSound();
                 
