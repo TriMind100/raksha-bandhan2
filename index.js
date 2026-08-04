@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const aartiGlowOverlay = document.getElementById('aartiGlowOverlay');
     const aartiHighlight = document.getElementById('aartiHighlight');
     const virtualDiyaOverlay = document.getElementById('virtualDiyaOverlay');
+    const orbitHint3D = document.getElementById('orbitHint3D');
+    let ritual3D = null;
     
     const toolTilak = document.getElementById('toolTilak');
     const toolRakhi = document.getElementById('toolRakhi');
@@ -475,12 +477,482 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 6. VIRTUAL RITUAL LOGIC
+    // 6. VIRTUAL RITUAL LOGIC & 3D ENGINE INTEGRATION
+
+    // Photorealistic 3D Hand & 3D Rakhi Engine Class
+    class Ritual3DEngine {
+        constructor(canvasId) {
+            this.canvas = document.getElementById(canvasId);
+            if (!this.canvas) return;
+            
+            this.isInitialized = false;
+            this.isTied = false;
+            this.isAnimating = false;
+            this.wrapProgress = 0;
+            
+            this.isDragging = false;
+            this.previousMousePosition = { x: 0, y: 0 };
+            this.targetRotation = { x: 0.15, y: 0 };
+            this.currentRotation = { x: 0.15, y: 0 };
+
+            this.initScene();
+        }
+
+        initScene() {
+            if (typeof THREE === 'undefined') return;
+
+            const rect = this.canvas.parentElement.getBoundingClientRect();
+            this.width = rect.width || 400;
+            this.height = rect.height || 300;
+
+            this.renderer = new THREE.WebGLRenderer({
+                canvas: this.canvas,
+                alpha: true,
+                antialias: true,
+                powerPreference: 'high-performance'
+            });
+            this.renderer.setSize(this.width, this.height);
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            this.scene = new THREE.Scene();
+
+            this.camera = new THREE.PerspectiveCamera(38, this.width / this.height, 0.1, 100);
+            this.camera.position.set(0, 0, 5.2);
+            this.camera.lookAt(0, -0.5, 0);
+
+            this.setupLights();
+
+            this.handGroup = new THREE.Group();
+            this.scene.add(this.handGroup);
+
+            this.create3DHand();
+            this.create3DRakhi();
+            this.createParticleSystem();
+            this.setupEventListeners();
+
+            this.isInitialized = true;
+            this.animate();
+        }
+
+        setupLights() {
+            // Soft Warm Ambient Light
+            const ambientLight = new THREE.AmbientLight(0xfff1e6, 0.55);
+            this.scene.add(ambientLight);
+
+            // Primary Warm Key Directional Light
+            this.keyLight = new THREE.DirectionalLight(0xfff7ed, 0.9);
+            this.keyLight.position.set(2.5, 4, 3);
+            this.keyLight.castShadow = true;
+            this.keyLight.shadow.mapSize.width = 1024;
+            this.keyLight.shadow.mapSize.height = 1024;
+            this.keyLight.shadow.bias = -0.0005;
+            this.scene.add(this.keyLight);
+
+            // Gold Festival Rim Light
+            const rimLight = new THREE.DirectionalLight(0xfbbf24, 0.5);
+            rimLight.position.set(-3.5, 2, -2);
+            this.scene.add(rimLight);
+
+            // Warm Skin Bounce Light
+            const bounceLight = new THREE.DirectionalLight(0x7c2d12, 0.35);
+            bounceLight.position.set(0, -3.5, 2);
+            this.scene.add(bounceLight);
+
+            // Interactive Aarti Diya Light (used in Step 3)
+            this.aartiLight = new THREE.PointLight(0xf97316, 0, 8);
+            this.aartiLight.position.set(0, 0, 3);
+            this.scene.add(this.aartiLight);
+        }
+
+        create3DHand() {
+            // Skin hand mesh removed per user request.
+            // 3D Rakhi medallion and woven threads animate directly over the brother's wrist illustration.
+            this.handGroup.position.set(0, 0, 0);
+            this.handGroup.rotation.set(0, 0, 0);
+        }
+
+        create3DRakhi() {
+            this.rakhiGroup = new THREE.Group();
+
+            // Center Gold Medallion Disc
+            const discGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.04, 32);
+            const goldMat = new THREE.MeshStandardMaterial({
+                color: 0xf59e0b,
+                metalness: 0.9,
+                roughness: 0.2
+            });
+            const discMesh = new THREE.Mesh(discGeo, goldMat);
+            discMesh.castShadow = true;
+            this.rakhiGroup.add(discMesh);
+
+            // 8 Lotus Petals
+            const petalGeo = new THREE.ConeGeometry(0.09, 0.18, 4);
+            petalGeo.rotateX(Math.PI / 2);
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const petal = new THREE.Mesh(petalGeo, goldMat);
+                petal.position.set(Math.cos(angle) * 0.22, 0, Math.sin(angle) * 0.22);
+                petal.rotation.y = -angle;
+                petal.scale.set(1, 0.3, 1);
+                this.rakhiGroup.add(petal);
+            }
+
+            // 12 Pearl Ring
+            const pearlGeo = new THREE.SphereGeometry(0.025, 16, 16);
+            const pearlMat = new THREE.MeshStandardMaterial({
+                color: 0xfffef0,
+                roughness: 0.1,
+                metalness: 0.1
+            });
+            for (let i = 0; i < 12; i++) {
+                const angle = (i / 12) * Math.PI * 2;
+                const pearl = new THREE.Mesh(pearlGeo, pearlMat);
+                pearl.position.set(Math.cos(angle) * 0.16, 0.03, Math.sin(angle) * 0.16);
+                this.rakhiGroup.add(pearl);
+            }
+
+            // Center Ruby Gem
+            const rubyGeo = new THREE.CylinderGeometry(0.09, 0.07, 0.05, 8);
+            const rubyMat = new THREE.MeshStandardMaterial({
+                color: 0xdc2626,
+                roughness: 0.05,
+                metalness: 0.1
+            });
+            const rubyMesh = new THREE.Mesh(rubyGeo, rubyMat);
+            rubyMesh.position.y = 0.035;
+            this.rakhiGroup.add(rubyMesh);
+
+            // Dynamic Thread Groups
+            this.leftThreadGroup = new THREE.Group();
+            this.rightThreadGroup = new THREE.Group();
+            this.rakhiGroup.add(this.leftThreadGroup);
+            this.rakhiGroup.add(this.rightThreadGroup);
+
+            this.saffronMat = new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.6 });
+            this.crimsonMat = new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.6 });
+            this.brightGoldMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.8, roughness: 0.2 });
+
+            this.rakhiGroup.position.set(0, -0.65, 0.1);
+            this.rakhiGroup.visible = false; // Hidden until Kumkum is applied
+            this.scene.add(this.rakhiGroup);
+
+            this.updateThreads(0);
+        }
+
+        showRakhi() {
+            if (this.rakhiGroup) {
+                this.rakhiGroup.visible = true;
+                this.rakhiGroup.position.set(0, -0.65, 0.1);
+            }
+        }
+
+        updateThreads(progress) {
+            while (this.leftThreadGroup.children.length > 0) {
+                const child = this.leftThreadGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                this.leftThreadGroup.remove(child);
+            }
+            while (this.rightThreadGroup.children.length > 0) {
+                const child = this.rightThreadGroup.children[0];
+                if (child.geometry) child.geometry.dispose();
+                this.rightThreadGroup.remove(child);
+            }
+
+            const wristR = 0.32;
+
+            const leftPoints = [];
+            const leftMaxAngle = progress * Math.PI * 1.05;
+            const steps = 24;
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const currentAngle = t * leftMaxAngle;
+                const z = Math.cos(currentAngle) * wristR - wristR;
+                const y = -Math.sin(currentAngle) * wristR;
+                const x = -t * 0.7 * (1 - progress * 0.5);
+                leftPoints.push(new THREE.Vector3(x, y, z));
+            }
+
+            const rightPoints = [];
+            const rightMaxAngle = progress * Math.PI * 1.05;
+
+            for (let i = 0; i <= steps; i++) {
+                const t = i / steps;
+                const currentAngle = t * rightMaxAngle;
+                const z = Math.cos(currentAngle) * wristR - wristR;
+                const y = -Math.sin(currentAngle) * wristR;
+                const x = t * 0.7 * (1 - progress * 0.5);
+                rightPoints.push(new THREE.Vector3(x, y, z));
+            }
+
+            if (leftPoints.length > 1) {
+                const leftCurve = new THREE.CatmullRomCurve3(leftPoints);
+                const tube1 = new THREE.Mesh(new THREE.TubeGeometry(leftCurve, 32, 0.016, 8, false), this.saffronMat);
+                const tube2 = new THREE.Mesh(new THREE.TubeGeometry(leftCurve, 32, 0.012, 8, false), this.crimsonMat);
+                tube2.position.z += 0.01;
+                this.leftThreadGroup.add(tube1);
+                this.leftThreadGroup.add(tube2);
+            }
+
+            if (rightPoints.length > 1) {
+                const rightCurve = new THREE.CatmullRomCurve3(rightPoints);
+                const tube1 = new THREE.Mesh(new THREE.TubeGeometry(rightCurve, 32, 0.016, 8, false), this.saffronMat);
+                const tube2 = new THREE.Mesh(new THREE.TubeGeometry(rightCurve, 32, 0.012, 8, false), this.brightGoldMat);
+                tube2.position.z += 0.01;
+                this.rightThreadGroup.add(tube1);
+                this.rightThreadGroup.add(tube2);
+            }
+
+            if (progress > 0.8) {
+                const beadGeo = new THREE.SphereGeometry(0.04, 12, 12);
+                const beadLeft = new THREE.Mesh(beadGeo, this.brightGoldMat);
+                const beadRight = new THREE.Mesh(beadGeo, this.brightGoldMat);
+                
+                if (leftPoints.length > 0) beadLeft.position.copy(leftPoints[leftPoints.length - 1]);
+                if (rightPoints.length > 0) beadRight.position.copy(rightPoints[rightPoints.length - 1]);
+
+                this.leftThreadGroup.add(beadLeft);
+                this.rightThreadGroup.add(beadRight);
+            }
+        }
+
+        createParticleSystem() {
+            const count = 120;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const velocities = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+
+            const palette = [
+                new THREE.Color(0xfbbf24),
+                new THREE.Color(0xf97316),
+                new THREE.Color(0xffffff),
+                new THREE.Color(0xef4444)
+            ];
+
+            for (let i = 0; i < count; i++) {
+                positions[i * 3] = 0;
+                positions[i * 3 + 1] = 0;
+                positions[i * 3 + 2] = 0;
+
+                const speed = 0.5 + Math.random() * 1.5;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+
+                velocities[i * 3] = Math.sin(phi) * Math.cos(theta) * speed;
+                velocities[i * 3 + 1] = Math.cos(phi) * speed;
+                velocities[i * 3 + 2] = Math.sin(phi) * Math.sin(theta) * speed;
+
+                const c = palette[Math.floor(Math.random() * palette.length)];
+                colors[i * 3] = c.r;
+                colors[i * 3 + 1] = c.g;
+                colors[i * 3 + 2] = c.b;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const pMat = new THREE.PointsMaterial({
+                size: 0.08,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0
+            });
+
+            this.particles = new THREE.Points(geometry, pMat);
+            this.particleVelocities = velocities;
+            this.scene.add(this.particles);
+        }
+
+        triggerGoldParticles() {
+            const positions = this.particles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i++) {
+                positions[i] = 0;
+            }
+            this.particles.geometry.attributes.position.needsUpdate = true;
+            this.particles.material.opacity = 1;
+            this.particleTime = 0;
+        }
+
+        updateParticles(delta) {
+            if (!this.particles || this.particles.material.opacity <= 0) return;
+            this.particleTime += delta;
+
+            const positions = this.particles.geometry.attributes.position.array;
+            for (let i = 0; i < positions.length / 3; i++) {
+                positions[i * 3] += this.particleVelocities[i * 3] * delta;
+                positions[i * 3 + 1] += this.particleVelocities[i * 3 + 1] * delta;
+                positions[i * 3 + 2] += this.particleVelocities[i * 3 + 2] * delta;
+            }
+
+            this.particles.geometry.attributes.position.needsUpdate = true;
+            this.particles.material.opacity = Math.max(0, 1 - this.particleTime * 0.8);
+        }
+
+        animateTieRakhi(onComplete) {
+            if (this.isAnimating || this.isTied) return;
+            this.isAnimating = true;
+            if (this.rakhiGroup) this.rakhiGroup.visible = true;
+
+            if (typeof gsap === 'undefined') {
+                this.updateThreads(1.0);
+                this.rakhiGroup.position.set(0, -0.1, 0.4);
+                this.isTied = true;
+                this.isAnimating = false;
+                if (onComplete) onComplete();
+                return;
+            }
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    this.isTied = true;
+                    this.isAnimating = false;
+                    if (onComplete) onComplete();
+                }
+            });
+
+            tl.to(this.rakhiGroup.position, {
+                y: -1.18,
+                z: 0.15,
+                duration: 0.6,
+                ease: "power2.out"
+            });
+
+            const self = this;
+            const progressObj = { value: 0 };
+            tl.to(progressObj, {
+                value: 1.0,
+                duration: 1.4,
+                ease: "power2.inOut",
+                onUpdate: function() {
+                    self.wrapProgress = progressObj.value;
+                    self.updateThreads(progressObj.value);
+                }
+            });
+
+            tl.to(this.handGroup.position, {
+                y: 0.1,
+                duration: 0.25,
+                yoyo: true,
+                repeat: 1,
+                ease: "sine.inOut"
+            }, "-=0.3");
+
+            tl.add(() => {
+                self.triggerGoldParticles();
+            }, "-=0.3");
+
+            tl.to(this.targetRotation, {
+                x: 0.25,
+                y: 0.35,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        }
+
+        updateAartiLight(x, y) {
+            if (!this.aartiLight) return;
+            const normX = (x / this.width) * 2 - 1;
+            const normY = -(y / this.height) * 2 + 1;
+
+            this.aartiLight.position.x = normX * 2.5;
+            this.aartiLight.position.y = normY * 1.8;
+            this.aartiLight.position.z = 2.0;
+            this.aartiLight.intensity = 1.8;
+        }
+
+        setupEventListeners() {
+            const canvas = this.canvas;
+
+            canvas.addEventListener('mousedown', (e) => {
+                if (!this.isTied) return;
+                this.isDragging = true;
+                this.previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!this.isDragging) return;
+                const deltaX = e.clientX - this.previousMousePosition.x;
+                const deltaY = e.clientY - this.previousMousePosition.y;
+
+                this.targetRotation.y += deltaX * 0.008;
+                this.targetRotation.x += deltaY * 0.008;
+                this.targetRotation.x = Math.max(-0.4, Math.min(0.6, this.targetRotation.x));
+
+                this.previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => {
+                this.isDragging = false;
+            });
+
+            canvas.addEventListener('touchstart', (e) => {
+                if (!this.isTied || e.touches.length === 0) return;
+                this.isDragging = true;
+                this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!this.isDragging || e.touches.length === 0) return;
+                const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
+                const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+
+                this.targetRotation.y += deltaX * 0.008;
+                this.targetRotation.x += deltaY * 0.008;
+                this.targetRotation.x = Math.max(-0.4, Math.min(0.6, this.targetRotation.x));
+
+                this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => {
+                this.isDragging = false;
+            });
+
+            window.addEventListener('resize', () => {
+                if (!this.canvas || !this.renderer || !this.camera) return;
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.width = rect.width || 400;
+                this.height = rect.height || 300;
+                this.camera.aspect = this.width / this.height;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(this.width, this.height);
+            });
+        }
+
+        animate() {
+            requestAnimationFrame(() => this.animate());
+
+            if (!this.isInitialized) return;
+
+            this.currentRotation.x += (this.targetRotation.x - this.currentRotation.x) * 0.08;
+            this.currentRotation.y += (this.targetRotation.y - this.currentRotation.y) * 0.08;
+            this.handGroup.rotation.x = this.currentRotation.x;
+            this.handGroup.rotation.y = this.currentRotation.y;
+
+            if (this.isTied && this.rakhiGroup) {
+                const time = Date.now() * 0.001;
+                this.rakhiGroup.rotation.y = Math.sin(time * 0.5) * 0.05;
+            }
+
+            this.updateParticles(0.016);
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
+
+    // Initialize 3D Engine
+    try {
+        if (typeof THREE !== 'undefined') {
+            ritual3D = new Ritual3DEngine('ritual3dCanvas');
+        }
+    } catch (e) {
+        console.warn('3D WebGL initialization skipped:', e);
+    }
     
     // Plate Item Tool selection
     plateItems.forEach(item => {
         item.addEventListener('click', () => {
-            // Cannot select tools out of order or if complete
             const toolType = item.id.replace('tool', '').toLowerCase();
             
             if (currentRitualStep === 'completed') {
@@ -491,7 +963,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 setActiveTool(toolType);
                 playAudioTick();
             } else {
-                // Show warning message
                 let missingAction = '';
                 if (currentRitualStep === 'tilak') missingAction = 'Apply Kumkum Tilak first!';
                 else if (currentRitualStep === 'rakhi') missingAction = 'Tie the Sacred Rakhi first!';
@@ -512,7 +983,6 @@ document.addEventListener('DOMContentLoaded', () => {
         plateItems.forEach(item => item.classList.remove('active-tool'));
         document.getElementById(`tool${tool.charAt(0).toUpperCase() + tool.slice(1)}`).classList.add('active-tool');
         
-        // Remove old cursor classes
         arenaDisplay.className = 'arena-display';
         
         if (tool === 'tilak') {
@@ -530,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentRitualStep === 'tilak') {
             instructionText.textContent = "Tap on Bhaiya's forehead in the glowing target area to apply Tilak.";
         } else if (currentRitualStep === 'rakhi') {
-            instructionText.textContent = "Tap on the wrist target to tie the premium Rakhi threads.";
+            instructionText.textContent = "Tap on the wrist target to tie the realistic 3D Rakhi thread on hand!";
         } else if (currentRitualStep === 'aarti') {
             instructionText.textContent = "Click & move in circular motions around the arena to perform virtual Aarti.";
         } else if (currentRitualStep === 'completed') {
@@ -572,14 +1042,11 @@ document.addEventListener('DOMContentLoaded', () => {
             triggerConfetti(5);
             playHighChime();
             
-            // Advance step
             indicatorTilak.classList.add('completed');
             indicatorTilak.classList.remove('active');
-            // Change number to checkmark
             const stepNum = indicatorTilak.querySelector('.step-num');
             if (stepNum) stepNum.innerHTML = '✓';
             
-            // Animate line fill
             const lineFill = document.getElementById('lineFill1');
             if (lineFill) lineFill.classList.add('active');
             
@@ -590,36 +1057,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Rakhi Tie Interaction
+    // Rakhi Tie Interaction (Triggers Photorealistic 3D Hand & 3D Rakhi Tie Animation)
     wristTarget.addEventListener('click', () => {
         if (currentRitualStep === 'rakhi' && activeTool === 'rakhi') {
-            // Show SVG wrapping threads
-            if (tiedRakhiThreads) tiedRakhiThreads.classList.remove('hidden');
-            // Add tied thread class for SVG drawing
-            arenaDisplay.classList.add('wrist-active-tied');
-            // Show main luxury medallion overlay
-            if (tiedRakhiWrapper) {
-                tiedRakhiWrapper.classList.remove('hidden');
-                tiedRakhiWrapper.classList.add('show');
+            if (ritual3D && !ritual3D.isTied && !ritual3D.isAnimating) {
+                ritual3D.animateTieRakhi(() => {
+                    if (orbitHint3D) orbitHint3D.classList.remove('hidden');
+                    triggerConfetti(35);
+                    playRitualSuccessSound();
+                    
+                    indicatorRakhi.classList.add('completed');
+                    indicatorRakhi.classList.remove('active');
+                    const stepNum = indicatorRakhi.querySelector('.step-num');
+                    if (stepNum) stepNum.innerHTML = '✓';
+                    
+                    const lineFill = document.getElementById('lineFill2');
+                    if (lineFill) lineFill.classList.add('active');
+                    
+                    indicatorAarti.classList.add('active');
+                    
+                    currentRitualStep = 'aarti';
+                    updateRitualLayout();
+                });
+            } else if (!ritual3D || ritual3D.isTied) {
+                if (tiedRakhiThreads) tiedRakhiThreads.classList.remove('hidden');
+                arenaDisplay.classList.add('wrist-active-tied');
+                if (tiedRakhiWrapper) {
+                    tiedRakhiWrapper.classList.remove('hidden');
+                    tiedRakhiWrapper.classList.add('show');
+                }
+                triggerConfetti(25);
+                playRitualSuccessSound();
+                
+                indicatorRakhi.classList.add('completed');
+                indicatorRakhi.classList.remove('active');
+                const stepNum = indicatorRakhi.querySelector('.step-num');
+                if (stepNum) stepNum.innerHTML = '✓';
+                
+                const lineFill = document.getElementById('lineFill2');
+                if (lineFill) lineFill.classList.add('active');
+                
+                indicatorAarti.classList.add('active');
+                
+                currentRitualStep = 'aarti';
+                updateRitualLayout();
             }
-            triggerConfetti(25);
-            playRitualSuccessSound();
-            
-            // Advance step
-            indicatorRakhi.classList.add('completed');
-            indicatorRakhi.classList.remove('active');
-            // Change number to checkmark
-            const stepNum = indicatorRakhi.querySelector('.step-num');
-            if (stepNum) stepNum.innerHTML = '✓';
-            
-            // Animate line fill
-            const lineFill = document.getElementById('lineFill2');
-            if (lineFill) lineFill.classList.add('active');
-            
-            indicatorAarti.classList.add('active');
-            
-            currentRitualStep = 'aarti';
-            updateRitualLayout();
         }
     });
 
@@ -664,6 +1146,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update circular flame lighting overlay dynamically
         if (aartiHighlight) {
             aartiHighlight.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(253, 224, 71, 0.28) 0%, rgba(253, 224, 71, 0.08) 45%, rgba(0,0,0,0) 70%)`;
+        }
+
+        if (ritual3D) {
+            ritual3D.updateAartiLight(x, y);
         }
         
         // Calculate angle relative to center of arena

@@ -84,7 +84,7 @@
             <!-- Header Names display -->
             <div class="sibling-badge">
                 <div class="badge-from">From: <span id="badgeFromText">Behna</span></div>
-                <div class="badge-separator">❤️</div>
+                <div class="badge-separator"></div>
                 <div class="badge-to">To: <span id="badgeToText">Bhaiya</span></div>
             </div>
 
@@ -114,7 +114,7 @@
                             <p class="letter-body" id="letterBodyText">
                                 On this auspicious day of Raksha Bandhan, I want to thank you for always being my pillar of strength, my partner in crime, and my protector. No matter how far we are, the sacred thread of Rakhi ties our hearts together forever. Wishing you endless happiness, good health, and success!
                             </p>
-                            <p class="letter-closing">With all my love,<br><span class="heart-signature">❤️</span> <span id="letterFrom">Behna</span></p>
+                            <p class="letter-closing">With all my love,<br><span class="heart-signature"></span> <span id="letterFrom">Behna</span></p>
                             <div class="wish-action-container hidden" id="wishActionContainer">
                                 <button class="next-step-btn" id="btnGoToRitual">Begin Virtual Ritual 🪔</button>
                             </div>
@@ -267,10 +267,17 @@
                                             </g>
                                         </g>
                                     </svg>
+                                    <!-- Photorealistic 3D Hand & 3D Rakhi Tie WebGL Canvas -->
+                                    <canvas id="ritual3dCanvas" class="ritual-3d-canvas"></canvas>
 
                                     <!-- Forensic target invisible overlays for mouse triggers -->
                                     <div class="forehead-hotspot" id="foreheadTarget"></div>
                                     <div class="wrist-hotspot" id="wristTarget"></div>
+
+                                    <!-- 3D Interactive Rotation Hint Badge -->
+                                    <div class="3d-orbit-hint hidden" id="orbitHint3D">
+                                        <span class="hint-icon">🔄</span> Drag to inspect 3D Rakhi
+                                    </div>
 
                                     <!-- Tied Rakhi Medallion image overlay -->
                                     <div class="tied-rakhi-wrapper hidden" id="tiedRakhiWrapper">
@@ -403,6 +410,10 @@
             </div>
         </div>
     </div>
+
+    <!-- External Libraries: Three.js for 3D Graphics & GSAP for Smooth Physics/Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <!-- Main JavaScript Logic -->
     <script src="index.js"></script>
