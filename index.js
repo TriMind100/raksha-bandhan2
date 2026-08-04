@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (typeof gsap === 'undefined') {
                 this.updateThreads(1.0);
-                this.rakhiGroup.position.set(0, -0.1, 0.4);
+                this.rakhiGroup.position.set(0, -1.16, 0.1);
                 this.isTied = true;
                 this.isAnimating = false;
                 if (onComplete) onComplete();
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             tl.to(this.rakhiGroup.position, {
-                y: -1.18,
+                y: -1.16,
                 z: 0.15,
                 duration: 0.6,
                 ease: "power2.out"
@@ -1035,8 +1035,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Tilak Apply Interaction
-    foreheadTarget.addEventListener('click', () => {
+    // Tilak Apply Interaction (Supports Click, Pointer, & Touch)
+    let lastTilakTime = 0;
+    function handleTilakTrigger(e) {
+        const now = Date.now();
+        if (now - lastTilakTime < 300) return;
+        lastTilakTime = now;
+
         if (currentRitualStep === 'tilak' && activeTool === 'tilak') {
             appliedTilak.classList.remove('hidden');
             triggerConfetti(5);
@@ -1055,12 +1060,32 @@ document.addEventListener('DOMContentLoaded', () => {
             currentRitualStep = 'rakhi';
             updateRitualLayout();
         }
-    });
+    }
 
-    // Rakhi Tie Interaction (Triggers Photorealistic 3D Hand & 3D Rakhi Tie Animation)
-    wristTarget.addEventListener('click', () => {
+    if (foreheadTarget) {
+        foreheadTarget.addEventListener('click', handleTilakTrigger);
+        foreheadTarget.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleTilakTrigger(e);
+        }, { passive: false });
+    }
+
+    // Rakhi Tie Interaction (Supports Click, Pointer, & Touch)
+    let lastRakhiTime = 0;
+    function handleRakhiTrigger(e) {
+        const now = Date.now();
+        if (now - lastRakhiTime < 400) return;
+        lastRakhiTime = now;
+
         if (currentRitualStep === 'rakhi' && activeTool === 'rakhi') {
             if (ritual3D && !ritual3D.isTied && !ritual3D.isAnimating) {
+                // Ensure photo image wrapper is hidden so pure 3D animated Rakhi renders cleanly
+                const tiedRakhiWrapper = document.getElementById('tiedRakhiWrapper');
+                if (tiedRakhiWrapper) {
+                    tiedRakhiWrapper.classList.add('hidden');
+                    tiedRakhiWrapper.classList.remove('show');
+                }
+
                 ritual3D.animateTieRakhi(() => {
                     if (orbitHint3D) orbitHint3D.classList.remove('hidden');
                     triggerConfetti(35);
@@ -1080,6 +1105,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateRitualLayout();
                 });
             } else if (!ritual3D || ritual3D.isTied) {
+                const tiedRakhiThreads = document.getElementById('tiedRakhiThreads');
+                const tiedRakhiWrapper = document.getElementById('tiedRakhiWrapper');
                 if (tiedRakhiThreads) tiedRakhiThreads.classList.remove('hidden');
                 arenaDisplay.classList.add('wrist-active-tied');
                 if (tiedRakhiWrapper) {
@@ -1103,7 +1130,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateRitualLayout();
             }
         }
-    });
+    }
+
+    if (wristTarget) {
+        wristTarget.addEventListener('click', handleRakhiTrigger);
+        wristTarget.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            handleRakhiTrigger(e);
+        }, { passive: false });
+    }
 
     // Aarti Circle Tracking Interaction
     function startAartiTracking() {

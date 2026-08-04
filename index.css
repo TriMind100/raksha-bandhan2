@@ -1624,7 +1624,8 @@ body {
 @media (max-width: 600px) {
     .brand-tag {
         bottom: 15px;
-        left: 15px;
+        right: 15px;
+        left: auto;
         padding: 6px 12px;
         font-size: 0.7rem;
     }
@@ -1778,7 +1779,7 @@ body {
 .letter-body {
     position: absolute;
     top: 65px;
-    bottom: 110px;
+    bottom: 80px;
     left: 0;
     right: 0;
     margin: 0;
@@ -1802,7 +1803,7 @@ body {
 
 .letter-closing {
     position: absolute;
-    bottom: 60px;
+    bottom: 42px;
     left: 0;
     right: 0;
     margin: 0;
@@ -1811,31 +1812,56 @@ body {
 
 .wish-action-container {
     position: absolute;
-    bottom: 10px;
-    left: 0;
-    right: 0;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     justify-content: center;
+    align-items: center;
     width: 100%;
     z-index: 10;
+    padding: 0 15px;
 }
 
 .next-step-btn {
-    padding: 10px 24px;
+    padding: 12px 28px;
     font-size: 0.95rem;
-    margin: 0;
-    border-radius: 20px;
-    background: linear-gradient(135deg, var(--accent-saffron) 0%, var(--accent-gold) 100%);
-    border: 1px solid var(--accent-gold);
-    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
-    color: var(--primary-indigo);
     font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #070414;
+    background: linear-gradient(135deg, #f97316 0%, #fbbf24 50%, #ea580c 100%);
+    background-size: 200% 200%;
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+    border-radius: 25px;
+    box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45), 0 0 15px rgba(251, 191, 36, 0.35);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    animation: ctaPulse 2.5s infinite ease-in-out;
 }
 
 .next-step-btn:hover {
-    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.45);
-    border-color: #fff;
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: 0 10px 28px rgba(249, 115, 22, 0.7), 0 0 25px rgba(251, 191, 36, 0.7);
+    border-color: #ffffff;
+    background-position: right center;
+}
+
+.next-step-btn:active {
+    transform: translateY(-1px) scale(0.98);
+}
+
+@keyframes ctaPulse {
+    0%, 100% {
+        box-shadow: 0 6px 20px rgba(249, 115, 22, 0.45), 0 0 15px rgba(251, 191, 36, 0.35);
+    }
+    50% {
+        box-shadow: 0 8px 30px rgba(249, 115, 22, 0.75), 0 0 25px rgba(251, 191, 36, 0.65);
+    }
 }
 
 /* Step 2: Virtual Ceremony Compact Portrait Layout */
@@ -2048,43 +2074,92 @@ body {
     100% { transform: translateX(3px); }
 }
 
-/* Mobile responsive scaling */
+/* Mobile responsive scaling - Elegant Floating Portrait Card */
 @media (max-width: 600px) {
+    body {
+        padding: 10px;
+        align-items: center;
+    }
+
+    .intro-screen {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px 5px;
+    }
+
+    .envelope-wrapper {
+        width: 320px;
+        height: 220px;
+        margin: 0 auto;
+    }
+
+    .envelope-flap.top {
+        border-width: 110px 160px 0 160px;
+    }
+
+    .envelope-flap.left {
+        border-width: 110px 0 110px 160px;
+    }
+
+    .envelope-flap.right {
+        border-width: 110px 160px 110px 0;
+    }
+
+    .envelope-flap.bottom {
+        border-width: 0 160px 110px 160px;
+    }
+
     .card-screen {
-        width: 90vw;
-        height: calc(90vw * 1.35);
-        max-width: 350px;
-        max-height: 490px;
+        width: 92vw;
+        max-width: 375px;
+        height: 520px;
+        margin: 0 auto;
     }
     
     .card-container {
-        padding: 16px 12px;
+        padding: 16px 14px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-content {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .tab-pane {
+        flex: 1;
+        min-height: 0;
     }
     
     .card-back-btn {
-        top: 15px;
-        left: 15px;
-        padding: 4px 8px;
-        font-size: 0.72rem;
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        font-size: 0.75rem;
     }
     
     .sibling-badge {
         margin: 0 auto 10px auto;
-        padding: 4px 20px;
+        padding: 5px 22px;
     }
     
     .badge-from, .badge-to {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
     
     .wish-section {
         height: 100%;
-        max-height: none;
+        flex: 1;
+        min-height: 0;
         gap: 0;
     }
     
     .personal-letter {
-        height: 250px;
+        height: 290px;
         position: relative;
     }
     
@@ -2093,24 +2168,24 @@ body {
         top: 5px;
         left: 0;
         right: 0;
-        font-size: 1.2rem;
+        font-size: 1.25rem;
         margin: 0;
     }
     
     .letter-body {
         position: absolute;
-        top: 35px;
-        bottom: 95px;
+        top: 38px;
+        bottom: 70px;
         left: 0;
         right: 0;
-        font-size: 0.85rem;
+        font-size: 0.86rem;
         line-height: 1.5;
         margin: 0;
     }
     
     .letter-closing {
         position: absolute;
-        bottom: 50px;
+        bottom: 35px;
         left: 0;
         right: 0;
         font-size: 0.9rem;
@@ -2119,22 +2194,41 @@ body {
     
     .wish-action-container {
         position: absolute;
-        bottom: 5px;
-        left: 0;
-        right: 0;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
         justify-content: center;
+        align-items: center;
         width: 100%;
+        z-index: 10;
     }
     
     .next-step-btn {
-        padding: 6px 16px;
-        font-size: 0.75rem;
-        margin: 0;
+        padding: 9px 22px;
+        font-size: 0.78rem;
+        letter-spacing: 0.8px;
     }
     
     .arena-display {
-        height: 180px;
+        height: 195px;
+    }
+    
+    .forehead-hotspot {
+        top: 24%;
+        width: 70px;
+        height: 70px;
+    }
+    
+    .wrist-hotspot {
+        top: 86%;
+        width: 180px;
+        height: 55px;
+    }
+
+    .tied-rakhi-wrapper {
+        top: 86%;
+        width: 75px;
     }
     
     .ritual-instructions {
@@ -2144,12 +2238,15 @@ body {
     }
     
     .memories-carousel-container {
-        height: 290px;
+        height: 72vw;
+        max-height: 330px;
+        min-height: 260px;
     }
     
     .memory-card {
-        width: 270px;
-        height: 270px;
+        width: 82vw;
+        max-width: 300px;
+        height: 100%;
         padding: 10px;
         gap: 6px;
     }
